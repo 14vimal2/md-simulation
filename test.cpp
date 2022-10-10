@@ -15,25 +15,25 @@ int main()
     // }
     // cout << endl;
 
-    float *arr = new float[N_f_plus];
-    for (int i = 0; i < N_f_plus; i++)
+    float *arr = new float[N_times_d];
+    for (int i = 0; i < N_times_d; i++)
     {
         *(arr+i) = (((i / d) / (int)(pow(sn, i % d))) % sn + 0.5) * L / sn;
     }
 
     ofstream os("CPP_Code/inputpositions.dat", ios::binary);
-    os.write(reinterpret_cast<char*> (arr), N_f_plus*sizeof(float));
+    os.write(reinterpret_cast<char*> (arr), N_times_d*sizeof(float));
     os.close();
 
-    for (int i = 0; i < N_f_plus; i++)
+    for (int i = 0; i < N_times_d; i++)
     {
         *(arr+i) = 0;
     }
 
     ifstream is("CPP_Code/inputpositions.dat", ios::binary);
-    is.read(reinterpret_cast<char*>(arr), N_f_plus*sizeof(float));
+    is.read(reinterpret_cast<char*>(arr), N_times_d*sizeof(float));
 
-    for (int i = 0; i < N_f_plus; i++)
+    for (int i = 0; i < N_times_d; i++)
     {
         cout << *(arr+i) << " ";
     }
