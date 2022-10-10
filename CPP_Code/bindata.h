@@ -1,3 +1,6 @@
+#ifndef _INCL_BIN_DATA
+#define _INCL_BIN_DATA
+
 #include <string>
 
 using namespace std;
@@ -23,3 +26,6 @@ void readdata(string filename, _type_ *ptr, unsigned long long size){
     f.read(reinterpret_cast<char*>(ptr), size);
     f.close();
 }
+
+#endif
+
