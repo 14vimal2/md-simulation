@@ -5,38 +5,15 @@
 #include "para.h"
 #include "bindata.h"
 
-// ///@brief Save data in binary format
-// ///@param filename filename e.g "positions.dat"
-// ///@param ptr pointer to the first value of data to be saved
-// ///@param size total size of data i.e. if 5 int then 5 * sizeof(5)
-// template <class _type_>
-// void savedata(string filename, _type_ *ptr, unsigned long long size)
-// {
-//     ofstream f(filename, ios::binary);
-//     f.write(reinterpret_cast<char *>(ptr), size);
-//     f.close();
-// }
-
-// ///@brief Read data in binary format
-// ///@param filename filename e.g "positions.dat"
-// ///@param ptr pointer to the first value of data to be filled
-// ///@param size total size of data i.e. if 5 int then 5 * sizeof(5)
-// template <class _type_>
-// void readdata(string filename, _type_ *ptr, unsigned long long size)
-// {
-//     ifstream f(filename, ios::binary);
-//     f.read(reinterpret_cast<char *>(ptr), size);
-//     f.close();
-// }
 
 ///@brief Create position data
 ///@param N number of the particles only required for getting type
 ///@param boxsize size of the box only required for getting type
-template <class _int_type_, class _type_>
-void create_position_data(_int_type_ N, _type_ boxsize)
+template <class _int_type_, class _dec_type_>
+void create_position_data(_int_type_ N, _dec_type_ boxsize)
 {
     _int_type_ sn = ceil(pow(N, 1.0 / d));
-    _type_ *pos = new _type_[N_times_d];
+    _dec_type_ *pos = new _dec_type_[N_times_d];
     for (_int_type_ i = 0; i < N_times_d; i++)
     {
         *(pos + i) = (( (i / d) / (_int_type_)(pow(sn, i % d))) % sn + (1.0 / 2.0)) * L / sn;
@@ -56,23 +33,23 @@ void create_position_data(_int_type_ N, _type_ boxsize)
     }
     cout << endl
          << pif << " created";
-    delete pos;
+    delete[] pos;
 }
 
 ///@brief Create velocity data
 ///@param N number of the particles only required for getting type
 ///@param temperature temperature of the particles only required for getting type
-template <class _int_type_, class _type_>
-void create_velocity_data(_int_type_ N, _type_ temperature)
+template <class _int_type_, class _dec_type_>
+void create_velocity_data(_int_type_ N, _dec_type_ temperature)
 {
     string vif = "input_files/velocities_N" + to_string(N) + "_d" + to_string(d) + "_T" + to_string(T) + "_random.dat";
     srand(time(NULL));
-    _type_ *vel = new _type_[N_times_d];
-    _type_ *vcm = new _type_[d];
+    _dec_type_ *vel = new _dec_type_[N_times_d];
+    _dec_type_ *vcm = new _dec_type_[d];
     fill_n(vcm, d, 0);
     for (_int_type_ i = 0; i < N_times_d; i++)
     {
-        *(vel + i) = (rand() / (_type_)(RAND_MAX)) - 1 / 2.0;
+        *(vel + i) = (rand() / (_dec_type_)(RAND_MAX)) - 1 / 2.0;
         *(vcm + (i % d)) += *(vel + i);
     }
 
@@ -81,7 +58,7 @@ void create_velocity_data(_int_type_ N, _type_ temperature)
         *(vcm + j) /= N;
     }
 
-    _type_ KE = 0;
+    _dec_type_ KE = 0;
 
     for (_int_type_ i = 0; i < N_times_d; i++)
     {
@@ -89,7 +66,7 @@ void create_velocity_data(_int_type_ N, _type_ temperature)
         KE += *(vel + i) * *(vel + i);
     }
 
-    _type_ scalefactor = sqrt(d * T * N / KE);
+    _dec_type_ scalefactor = sqrt(d * T * N / KE);
     KE = 0;
 
     for (_int_type_ i = 0; i < N_times_d; i++)
@@ -109,6 +86,8 @@ void create_velocity_data(_int_type_ N, _type_ temperature)
     {
         cout << *(vel + i) << " ";
     }
+    delete[] vel;
+    delete[] vcm;
 }
 
 int main()
