@@ -1,3 +1,6 @@
+#ifndef _INCL_PARA
+#define _INCL_PARA
+
 #include <string>
 #include <math.h>
 
@@ -31,4 +34,6 @@ uint32_t N_times_d = d * N;
 float rho_max = 1 / pow(rc+1, d);
 
 unsigned long long variables_datasize = N_times_d * sizeof(float);
+
+#endif
 
