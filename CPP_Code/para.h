@@ -20,7 +20,7 @@ const string dir_name = "sim_data"; // directory used to store data
 const string positions_input_type = "squaregrid"; // squaregrid or random
 const string velocities_intput_type = "random"; // random or mbdist
 // positions input file name which needs to be present in input_files folder
-const string positions_input_file = "postions_N"+to_string(N) + "_d"+ to_string(d) +"_rho"+to_string(rho)+"_"+positions_input_type+".dat";
+const string positions_input_file = "positions_N"+to_string(N) + "_d"+ to_string(d) +"_rho"+to_string(rho)+"_"+positions_input_type+".dat";
 // velocities input file name which needs to be present in input_files folder
 const string velocities_input_file = "velocities_N"+to_string(N) + "_d"+ to_string(d) +"_T"+ to_string(T)+"_"+velocities_intput_type+".dat";
 
