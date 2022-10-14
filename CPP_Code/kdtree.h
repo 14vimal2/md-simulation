@@ -2,7 +2,7 @@
 
 using namespace std;
 
-/************************* Median of Median *****************************
+/************************* Median of Medians *****************************
  * adapted from @link https://en.wikipedia.org/wiki/Median_of_medians
  *
  * **********************************************************************/
@@ -126,3 +126,151 @@ _int_type_ pivot(_dec_type_ *arr, _int_type_ left, _int_type_ right, uint8_t axi
     return select(arr, left, left + ((right - left) / 5 / k) * k, mid, axis, k);
 };
 
+//************************* End of Median of Medians **************************//
+
+template <typename _dec_type_, typename _int_type_>
+class kdtree
+{
+private:
+    class Node
+    {
+    private:
+        _int_type_ ind;
+        Node *left, *right;
+
+    public:
+        Node(_int_type_ x)
+        {
+            ind = x;
+            left = nullptr;
+            right = nullptr;
+        };
+
+        void setleft(Node *L) { left = L; }
+        void setright(Node *R) { right = R; }
+        void deleteNode()
+        {
+            if (left)
+            {
+                left->deleteNode();
+            }
+            delete left;
+            if (right)
+            {
+                right->deleteNode();
+            }
+            delete right;
+        }
+
+        void displayNode(_dec_type_ *arr, _int_type_ k)
+        {
+            cout << "((";
+            cout << arr[ind];
+            for (uint8_t i = 1; i < k; i++)
+            {
+                cout << ", " << arr[ind+i];
+            }
+            
+
+            cout << "), ";
+            if (left)
+            {
+                left->displayNode(arr,k);
+            }
+            cout << ", ";
+            if (right)
+            {
+                right->displayNode(arr,k);
+            }
+            cout << " )";
+        }
+    };
+    _dec_type_ *data;
+    _int_type_ k;
+    _int_type_ N;
+    Node *root;
+    _dec_type_ boxsize;
+
+public:
+    kdtree(_dec_type_ *arr, _int_type_ N_, _int_type_ k_, _dec_type_ boxsize_)
+    {
+        if (N_ * k_)
+        {
+            data = new _dec_type_[N_ * k_];
+            k = k_;
+            N = N_;
+            boxsize = boxsize_;
+            copy(arr, arr + N * k, data);
+            root = buildtree(0, (N - 1) * k, 0);
+        }
+        else
+        {
+            root = nullptr;
+        }
+    };
+
+    void refresh(_dec_type_ *arr)
+    {
+
+        if (root)
+        {
+            root->deleteNode();
+        }
+        delete root;
+
+        copy(arr, arr + N * k, data);
+        root = buildtree(0, (N - 1) * k, 0);
+    }
+
+    Node *buildtree(_int_type_ l, _int_type_ r, _int_type_ depth)
+    {
+        if (l > r)
+        {
+            return nullptr;
+        }
+
+        if (l == r)
+        {
+            return new Node(l);
+        }
+        _int_type_ axis = depth % k;
+        _int_type_ medianIndex = select(data, l, r, ((l + r + k) / 2 / k) * k, axis, k);
+        while (medianIndex > k && data[medianIndex + axis] == data[medianIndex + axis - k])
+        {
+            medianIndex -= k;
+        }
+        Node *temp = new Node(medianIndex);
+        temp->setleft(buildtree(l, medianIndex - k, ++depth));
+        temp->setright(buildtree(medianIndex + k, r, ++depth));
+        return temp;
+    }
+
+    void findNeighboursInRange(_dec_type_ *arr, _int_type_ k, _dec_type_ radius){
+        
+    }
+    void displayTree()
+    {
+        cout << endl;
+        if (root)
+        {
+            root->displayNode(data,k);
+        }
+    }
+    void displayData()
+    {
+        cout << "N : " << N << endl;
+        cout << "k : " << k << endl;
+        for (int i = 0; i < N * k; i++)
+        {
+            cout << data[i] << " ";
+        }
+    }
+    ~kdtree(){
+        if (root)
+        {
+            root->deleteNode();
+        }
+        delete root;
+        delete[] data;        
+    }
+};
