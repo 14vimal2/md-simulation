@@ -1,7 +1,8 @@
 #include "para.h"
 #include "bindata.h"
+#include "kdtree.h"
 /// @brief Particles class contains information of positions and previous positions at all instant of time, it also provides all methods to calculate necessary quantities
-template <class _int_type_, class _dec_type_>
+template <typename _int_type_, typename _dec_type_>
 class Particles
 {
 private:
@@ -39,6 +40,9 @@ private:
      */
     _dec_type_ *temp_var;
 
+
+    kdtree<_dec_type_, _int_type_> *tree;
+
     bool velocities_updated;
 
 public:
@@ -51,6 +55,10 @@ public:
         temp_var = new _dec_type_[N_times_d];
         velocities_updated = true;
         init();
+
+        tree = new kdtree<_dec_type_, _int_type_>(r, N, d, L);
+        // tree->displayTree();
+        // cout << endl;
     };
     void init()
     {
@@ -65,6 +73,19 @@ public:
     void computeForce()
     {
         fill_n(F, N_times_d, 0);
+        tree->refresh(r);
+        // tree->displayTree();
+        for (_int_type_ i = 0; i < N; i++)
+        {
+            tree->findNeighboursInRange(r+i*d,F+i*d, rc);
+        }
+        // cout << endl;
+        // for (_int_type_ i = 0; i < N_times_d; i++)
+        // {
+        //     cout << F[i] << " ";
+        // }
+        // cout << endl;
+                
     }
 
     void DisplayPositions()
@@ -96,7 +117,9 @@ public:
     }
     /**
      * Calculates current position at each time-step
+     * 
      * Uses equations 𝒓(𝑡+Δ𝑡)=2 𝒓(𝑡)−𝒓(𝑡−Δ𝑡)+𝒂(𝒓_𝑖𝑗 )Δt^2, where 𝒂(𝒓_𝑖𝑗 ) = 𝒇/𝑚, with m = 1.
+     * 
      * For performance reasons we are using the concept of branchless programming.
      * So, + 2 * L * ((r[i] - rp[i]) < L / 2), - 2 * L * ((r[i] - rp[i]) > L / 2), + (r[i] < 0) * L, and - (r[i] > L) * L  terms are used for dealing with periodic boundary conditions
      */
@@ -108,7 +131,7 @@ public:
             for (_int_type_ i = 0; i < N_times_d; i++)
             {
                 temp_var[i] = r[i];                                                                                             // saves current position
-                r[i] = 2 * r[i] - rp[i] + 2 * L * ((r[i] - rp[i]) < L / 2) - 2 * L * ((r[i] - rp[i]) > L / 2) + F[i] * dt * dt; // current position gets  new positions
+                r[i] = 2 * r[i] - rp[i] + 2 * L * ((r[i] - rp[i]) < -L / 2) - 2 * L * ((r[i] - rp[i]) > L / 2) + F[i] * dt * dt; // current position gets  new positions
                 r[i] = r[i] + (r[i] < 0) * L - (r[i] > L) * L;                                                                  // fixed boundary conditions of new positions
                 v[i] = r[i] - rp[i];                                                                                            // new position - previous position
                 v[i] = (v[i] + L * (v[i] < -L / 2) - L * (v[i] > L / 2)) / (2 * dt);
@@ -120,7 +143,7 @@ public:
             for (_int_type_ i = 0; i < N_times_d; i++)
             {
                 temp_var[i] = r[i];                                                                                             // saves current position
-                r[i] = 2 * r[i] - rp[i] + 2 * L * ((r[i] - rp[i]) < L / 2) - 2 * L * ((r[i] - rp[i]) > L / 2) + F[i] * dt * dt; // current position gets  new positions
+                r[i] = 2 * r[i] - rp[i] + 2 * L * ((r[i] - rp[i]) < -L / 2) - 2 * L * ((r[i] - rp[i]) > L / 2) + F[i] * dt * dt; // current position gets  new positions
                 r[i] = r[i] + (r[i] < 0) * L - (r[i] > L) * L;                                                                  // fixed boundary conditions of new positions
                 rp[i] = temp_var[i];                                                                                            // previous position gets current position                                                                                           // previous position gets current position
             }
@@ -128,23 +151,17 @@ public:
     }
     /**
      * @brief Get the velocities of the particles
+     * 
      * Calculates velocities using equation 𝒗(𝑡)= (𝒓(𝑡+Δ𝑡)−𝒓(𝑡−Δ𝑡))/(2 Δ𝑡)
      * @return _dec_type_* Head pointer to the array containing velocities
      */
     _dec_type_ *get_velocities()
     {
-        if (velocities_updated)
-        {
-            return v;
-        }
-        cout << "calculating velocities" << endl;
-        for (_int_type_ i = 0; i < N_times_d; i++)
-        {
-            temp_var[i] = 2 * r[i] - rp[i] + 2 * L * ((r[i] - rp[i]) < L / 2) - 2 * L * ((r[i] - rp[i]) > L / 2) + F[i] * dt * dt;
-            temp_var[i] = temp_var[i] + (temp_var[i] < 0) * L - (temp_var[i] > L) * L;
-            v[i] = (temp_var[i] - rp[i] + L * (temp_var[i] - rp[i] < -L / 2) - L * (temp_var[i] - rp[i] > L / 2)) / (2 * dt);
-            cout << v[i] << " ";
-        }
+        // if (velocities_updated)
+        // {
+        //     return v;
+        // }
+        // time_advance_single_step(true);
         return v;
     }
     /**
@@ -154,7 +171,7 @@ public:
      */
     _dec_type_ get_KE()
     {
-        get_velocities();
+        // get_velocities();
         _dec_type_ KE = 0;
         for (int i = 0; i < N_times_d; i++)
         {

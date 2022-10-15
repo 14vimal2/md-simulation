@@ -1,5 +1,7 @@
-#include <iostream>
 
+#include <iostream>
+#ifndef _INCL_KDTREE_
+#define _INCL_KDTREE_
 using namespace std;
 
 /************************* Median of Medians *****************************
@@ -146,6 +148,95 @@ private:
             right = nullptr;
         };
 
+        bool isSame(_dec_type_ *point, _dec_type_ *data_, _int_type_ k)
+        {
+            for (_int_type_ i = 0; i < k; i++)
+            {
+                if (point[i] != data_[ind + i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        _dec_type_ distance2(_dec_type_ *point, _dec_type_ *data_, _int_type_ k)
+        {
+            _dec_type_ dist = 0;
+            for (_int_type_ i = 0; i < k; i++)
+            {
+                dist += (data_[ind + i] - point[i]) * (data_[ind + i] - point[i]);
+            }
+            return dist;
+        }
+
+        // returns true the given point is in the left of the node
+        bool inLeft(_dec_type_ *point, _dec_type_ *data_, _int_type_ axis)
+        {
+            return point[axis] < data_[ind + axis];
+        }
+
+        bool inRange(_dec_type_ *point, _dec_type_ *data_, _int_type_ axis, _dec_type_ radius)
+        {
+            return (point[axis] - radius < data_[ind + axis]) && (point[axis] + radius > data_[ind + axis]);
+        }
+
+        void searchNeighbours(_dec_type_ *point, _dec_type_ *forceVal, _dec_type_ *data_, _dec_type_ radius, _int_type_ k, _int_type_ depth = 0)
+        {
+            // cout << "points searched " << endl;
+            // for (int i = 0; i < k; i++)
+            // {
+            //     cout << point[i] << " ";
+            // }
+            // cout << endl;
+
+            _int_type_ axis = depth % k;
+            if (!isSame(point, data_, k))
+            {
+                if (inRange(point, data_, axis, radius))
+                {
+                    _dec_type_ r2 = distance2(point, data_, k);
+                    if (r2 < radius * radius)
+                    {
+                        // for (uint8_t i = 0; i < k; i++)
+                        // {
+                        //     cout << data_[ind + i] << " ";
+                        // }
+                        // cout << endl;
+
+                        _dec_type_ r2i = 1.0 / r2, r6i;
+                        r6i = r2i * r2i * r2i;
+                        _dec_type_ ff = 48.0 * r2i * r6i * (r6i - 0.5);
+
+                        for (uint8_t i = 0; i < k; i++)
+                        {
+                            forceVal[i] += ff * (point[i] - data_[ind + i]);
+                        }
+                    }
+                    if (left)
+                    {
+                        left->searchNeighbours(point, forceVal, data_, radius, k, ++depth);
+                    }
+                    if (right)
+                    {
+                        right->searchNeighbours(point, forceVal, data_, radius, k, ++depth);
+                    }
+                    return;
+                }
+                else if (inLeft(point, data_, axis))
+                {
+                    if (left)
+                    {
+                        left->searchNeighbours(point, forceVal, data_, radius, k, ++depth);
+                    }
+                }
+                else if (right)
+                {
+                    right->searchNeighbours(point, forceVal, data_, radius, k, ++depth);
+                }
+            }
+        }
+
         void setleft(Node *L) { left = L; }
         void setright(Node *R) { right = R; }
         void deleteNode()
@@ -168,19 +259,18 @@ private:
             cout << arr[ind];
             for (uint8_t i = 1; i < k; i++)
             {
-                cout << ", " << arr[ind+i];
+                cout << ", " << arr[ind + i];
             }
-            
 
             cout << "), ";
             if (left)
             {
-                left->displayNode(arr,k);
+                left->displayNode(arr, k);
             }
             cout << ", ";
             if (right)
             {
-                right->displayNode(arr,k);
+                right->displayNode(arr, k);
             }
             cout << " )";
         }
@@ -235,7 +325,12 @@ public:
         }
         _int_type_ axis = depth % k;
         _int_type_ medianIndex = select(data, l, r, ((l + r + k) / 2 / k) * k, axis, k);
-        while (medianIndex > k && data[medianIndex + axis] == data[medianIndex + axis - k])
+        // cout << "median " << medianIndex << endl;
+
+
+        // displayTree();
+
+        while (medianIndex > k &&  medianIndex > l &&  data[medianIndex + axis] == data[medianIndex + axis - k])
         {
             medianIndex -= k;
         }
@@ -245,15 +340,29 @@ public:
         return temp;
     }
 
-    void findNeighboursInRange(_dec_type_ *arr, _int_type_ k, _dec_type_ radius){
-        
+    void findNeighboursInRange(_dec_type_ *point, _dec_type_ *forceval, _dec_type_ radius)
+    {
+        if (root)
+        {
+            root->searchNeighbours(point, forceval, data, radius, k);
+            for (uint8_t i = 0; i < k; i++)
+            {
+                if (point[i] < radius || boxsize - point[i] < radius)
+                {
+                    _dec_type_ temp = point[i];
+                    point[i] = point[i] < radius ? point[i] + boxsize : point[i] - boxsize;
+                    root->searchNeighbours(point, forceval, data, radius, k);
+                    point[i] = temp;
+                }
+            }
+        }
     }
     void displayTree()
     {
         cout << endl;
         if (root)
         {
-            root->displayNode(data,k);
+            root->displayNode(data, k);
         }
     }
     void displayData()
@@ -265,12 +374,15 @@ public:
             cout << data[i] << " ";
         }
     }
-    ~kdtree(){
+    ~kdtree()
+    {
         if (root)
         {
             root->deleteNode();
         }
         delete root;
-        delete[] data;        
+        delete[] data;
     }
 };
+
+#endif
