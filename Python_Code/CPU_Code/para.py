@@ -2,7 +2,7 @@
 
 # all physical quantities in LJ units
 
-N = 100                # No. of Particle
+N = 500                # No. of Particle
 
 T =  0.306            # temperature
 dt = 0.005                # timestep

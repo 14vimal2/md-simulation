@@ -14,25 +14,25 @@ def compute_interacting_pairs(P: Particles) -> None:
      the k (= no. of interacting pairs) pairs ,i.e. iarr, jarr and r2arr 
      for which d2matrix is less than rc2"""
     # matrix based
-    P.d2matrix = P.d2matrix*0
-    for j in range(para.dim):
-        temparr = np.abs(P.r[:,j].reshape(para.N,1) - P.r[:,j].reshape(1,para.N))
-        boolarr = temparr <= para.L / 2
-        temparr = temparr * boolarr + (para.L - temparr) * (~ boolarr)
-        P.d2matrix += temparr**2
-    P.iarr, P.jarr = np.where(P.d2matrix < para.rc**2)
-    k = P.jarr > P.iarr
-    P.iarr, P.jarr = P.iarr[k], P.jarr[k]
-    P.r2arr = P.d2matrix[P.iarr, P.jarr]
+    # P.d2matrix = P.d2matrix*0
+    # for j in range(para.dim):
+    #     temparr = np.abs(P.r[:,j].reshape(para.N,1) - P.r[:,j].reshape(1,para.N))
+    #     boolarr = temparr <= para.L / 2
+    #     temparr = temparr * boolarr + (para.L - temparr) * (~ boolarr)
+    #     P.d2matrix += temparr**2
+    # P.iarr, P.jarr = np.where(P.d2matrix < para.rc**2)
+    # k = P.jarr > P.iarr
+    # P.iarr, P.jarr = P.iarr[k], P.jarr[k]
+    # P.r2arr = P.d2matrix[P.iarr, P.jarr]
 
     # tree based
-    # tree = cKDTree(P.r, boxsize=para.L)
-    # colliding_indices = tree.query_pairs(para.rc,output_type = 'ndarray')
-    # P.iarr, P.jarr = colliding_indices[:,0], colliding_indices[:,1]
-    # dist_ = np.abs(P.r[P.iarr]-P.r[P.jarr])
-    # boolarr = dist_ < para.L / 2
-    # dist_ = dist_ * boolarr + (para.L - dist_) * (~ boolarr)
-    # P.r2arr = np.sum(dist_**2, axis=1)
+    tree = cKDTree(P.r, boxsize=para.L)
+    colliding_indices = tree.query_pairs(para.rc,output_type = 'ndarray')
+    P.iarr, P.jarr = colliding_indices[:,0], colliding_indices[:,1]
+    dist_ = np.abs(P.r[P.iarr]-P.r[P.jarr])
+    boolarr = dist_ < para.L / 2
+    dist_ = dist_ * boolarr + (para.L - dist_) * (~ boolarr)
+    P.r2arr = np.sum(dist_**2, axis=1)
 
 
     P.collisionnumber += len(P.r2arr)
