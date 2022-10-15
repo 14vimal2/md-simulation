@@ -15,7 +15,7 @@ git clone https://github.com/14vimal2/md-simulation
 cd md-simulation
 ```
 
-Make a file lets testrun.cpp and copy this code
+Make a file lets `testrun.cpp` and copy this code
 
 ```CPP
 #include <iostream>
