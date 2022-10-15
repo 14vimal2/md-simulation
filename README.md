@@ -3,19 +3,19 @@ This repository contains codes for md-simulation and its application
 
 Right now I am developing this, but it has bugs. You are welcome to contribute.
 
-# Download
+## Download
 
 ```bash
 git clone https://github.com/14vimal2/md-simulation
 ```
 
-# Usage
+## Usage
 
 ```bash
 cd md-simulation
 ```
 
-Make a file lets [testrun.cpp] and copy this code
+Make a file lets testrun.cpp and copy this code
 
 ```CPP
 #include <iostream>
@@ -38,3 +38,6 @@ int main()
     cout << P.get_KE();
 }
 ```
+
+## Contributing
+Pull requests are welcomed. For major changes, please open an issue first to discuss what you would like to change.
