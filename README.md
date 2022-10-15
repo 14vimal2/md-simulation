@@ -14,8 +14,8 @@ git clone https://github.com/14vimal2/md-simulation
 ```bash
 cd md-simulation
 ```
-
-Make a file lets `testrun.cpp` and copy this code
+### Quickstart
+Download this repo first and go in to `md-simulation\` folder first. Make a file say `testrun.cpp` and copy this code and run.
 
 ```CPP
 #include <iostream>
