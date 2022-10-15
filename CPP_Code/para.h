@@ -7,10 +7,10 @@
 using namespace std;
 
 
-const uint32_t N = 9; // Number of particles
+const uint32_t N = 100; // Number of particles
 const float T = 0.306; // Temperature of particles i.e used to set velocities
 const float dt = 0.005; // time-step of simulation
-const float tf = 100; // total time of simulation
+const float tf = 300; // total time of simulation
 const uint32_t d = 2; // dimension of simulation
 const float rc = 2.5; // cut-off radius of Lennard-Jones Potential
 const float rho = 0.00304; // density of particles
