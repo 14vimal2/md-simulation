@@ -1,7 +1,7 @@
 # md-simulation
 This repository contains codes for md-simulation and its application
 
-Right now I am developing this, but it has bugs. You are welcome to contribute.
+Right now I am developing this, but it has bugs. You are welcomed to contribute.
 
 ## Download
 
